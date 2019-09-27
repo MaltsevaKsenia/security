@@ -56,4 +56,12 @@ public class UserRepository {
 
     int update = jdbcTemplate.update(sql, email);
   }
+
+  public void updatePassword(String email, String newPassword) {
+    String sql = "UPDATE customer " +
+        "set password = ?"
+        + "where customer.email = ?";
+
+    int update = jdbcTemplate.update(sql, passwordEncoder.encode(newPassword), email);
+  }
 }

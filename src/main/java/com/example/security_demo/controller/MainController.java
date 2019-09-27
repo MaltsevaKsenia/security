@@ -2,14 +2,23 @@ package com.example.security_demo.controller;
 
 import com.example.security_demo.model.User;
 import com.example.security_demo.service.EmailService;
+import com.example.security_demo.service.PasswordChangingService;
 import com.example.security_demo.service.RegistrationCompleteService;
 import com.example.security_demo.service.UserServiceImpl;
+import com.example.security_demo.util.JwtTokenUtil;
 import java.security.Principal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequiredArgsConstructor
@@ -21,8 +30,12 @@ public class MainController {
 
   private final RegistrationCompleteService registrationCompleteService;
 
+  private final PasswordChangingService passwordChangingService;
+
+  private final JwtTokenUtil jwtTokenUtil;
+
   @GetMapping("/")
-  public String hello() {
+  public String index() {
     return "home";
   }
 
@@ -36,9 +49,9 @@ public class MainController {
     return "login";
   }
 
-  @GetMapping("/hello")
-  public String hello(Principal principal) {
-    return "hello";
+  @GetMapping("/account")
+  public String account(Principal principal) {
+    return "account";
   }
 
   @GetMapping("/register")
@@ -65,6 +78,41 @@ public class MainController {
   @GetMapping("/confirm")
   public String confirmRegistration(@RequestParam("token") String token) {
     registrationCompleteService.confirmEmailRegistration(token);
-    return "redirect:/home";
+    return "redirect:/login";
   }
+
+  @GetMapping("/change_password")
+  public String changePassword(@RequestParam("token") String token, RedirectAttributes modelMap,
+      ModelMap modelMap1) {
+    if (passwordChangingService.verifyToken(token)) {
+      String email = jwtTokenUtil.gwtCustomerEmail(token);
+      modelMap.addAttribute("email", email);
+      modelMap1.addAttribute("email", email);
+
+      return "password";
+    } else {
+      return "home";
+    }
+  }
+
+  @GetMapping("/enter_email")
+  public String sendEmail(Principal principal) {
+    return "enter_email";
+  }
+
+  @PostMapping("/enter_email")
+  public String changePasswordGet(@ModelAttribute("email") String email, ModelMap modelMap) {
+    emailService.sendPassword(email);
+    modelMap.addAttribute("message", "Check you email");
+    return "login";
+  }
+
+  @PostMapping("/password")
+  public String password(@RequestParam("password") String password,
+      @ModelAttribute("email") String email) {
+    userService.updatePassword(email, password);
+    return "login";
+  }
+
+
 }

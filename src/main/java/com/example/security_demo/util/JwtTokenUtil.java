@@ -4,6 +4,7 @@ import com.example.security_demo.service.UserService;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +22,10 @@ public class JwtTokenUtil {
   private String secret;
 
   public String gwtCustomerEmail(String token) throws ExpiredJwtException {
-    return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody()
+    return Jwts.parser()
+        .setSigningKey(secret)
+        .parseClaimsJws(token)
+        .getBody()
         .getSubject();
   }
 

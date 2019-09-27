@@ -11,14 +11,9 @@
 <div th:if="${param.logout}">
   You have been logged out.
 </div>
-<form th:action="@{/login}" method="post">
-  <div><label> Email : <input type="text" name="username"/> </label></div>
-  <div><label> Password: <input type="password" name="password"/> </label></div>
+<form th:action="@{/enter_email}" method="post">
+  <div><label> your email: <input type="text" name="email"/> </label></div>
   <div><input type="submit" value="Sign In"/></div>
 </form>
-<span th:text="${message}" > </span>
-
-<a th:href="@{/register}">Sing up</a></p>
-<a th:href="@{/enter_email}">reset email</a>
 </body>
 </html>

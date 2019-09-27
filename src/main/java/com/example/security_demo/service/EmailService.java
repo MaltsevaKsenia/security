@@ -21,6 +21,8 @@ public class EmailService {
 
   private final JwtTokenUtil jwtTokenUtil;
 
+  private final UserService userService;
+
   @Value("${spring.mail.username}")
   private String mailFrom;
 
@@ -48,6 +50,30 @@ public class EmailService {
     String token = jwtTokenUtil.generateToken(email);
     UriComponentsBuilder urlBuilder = ServletUriComponentsBuilder.fromCurrentContextPath()
         .path("/confirm");
+    return urlBuilder.queryParam("token", token).toUriString();
+  }
+
+  @SneakyThrows
+  @Async
+  public void sendPassword(String userEmailAddress) {
+    MimeMessage message = mailSender.createMimeMessage();
+    MimeMessageHelper helper = new MimeMessageHelper(message,
+        MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
+        StandardCharsets.UTF_8.name());
+
+    helper.setTo(userEmailAddress);
+    helper.setText(
+        "Hello, go there change email " + generatEmailForPasswordChanhging(userEmailAddress),
+        true);
+    helper.setSubject("Verification email");
+    helper.setFrom(mailFrom);
+    mailSender.send(message);
+  }
+
+  private String generatEmailForPasswordChanhging(String email) {
+    String token = jwtTokenUtil.generateToken(email);
+    UriComponentsBuilder urlBuilder = ServletUriComponentsBuilder.fromCurrentContextPath()
+        .path("/change_password");
     return urlBuilder.queryParam("token", token).toUriString();
   }
 
