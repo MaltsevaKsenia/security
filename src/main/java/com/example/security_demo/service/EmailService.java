@@ -1,5 +1,6 @@
 package com.example.security_demo.service;
 
+import com.example.security_demo.util.JwtTokenUtil;
 import java.nio.charset.StandardCharsets;
 import javax.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -9,12 +10,16 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
 @RequiredArgsConstructor
 public class EmailService {
 
   private final JavaMailSender mailSender;
+
+  private final JwtTokenUtil jwtTokenUtil;
 
   @Value("${spring.mail.username}")
   private String mailFrom;
@@ -24,16 +29,26 @@ public class EmailService {
 
   @SneakyThrows
   @Async
-  public void sendEmailVerification(String emailVerificationUrl, String userEmailAddress) {
+  public void sendEmail(String userEmailAddress) {
     MimeMessage message = mailSender.createMimeMessage();
     MimeMessageHelper helper = new MimeMessageHelper(message,
         MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
         StandardCharsets.UTF_8.name());
 
     helper.setTo(userEmailAddress);
-    helper.setText("Hello", true);
+    helper.setText(
+        "Hello, go there to verify email " + generateUrlForEmailVerification(userEmailAddress),
+        true);
     helper.setSubject("Verification email");
     helper.setFrom(mailFrom);
     mailSender.send(message);
   }
+
+  private String generateUrlForEmailVerification(String email) {
+    String token = jwtTokenUtil.generateToken(email);
+    UriComponentsBuilder urlBuilder = ServletUriComponentsBuilder.fromCurrentContextPath()
+        .path("/confirm");
+    return urlBuilder.queryParam("token", token).toUriString();
+  }
+
 }

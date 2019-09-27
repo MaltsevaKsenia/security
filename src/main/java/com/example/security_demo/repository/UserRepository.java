@@ -16,11 +16,11 @@ public class UserRepository {
 
   private final PasswordEncoder passwordEncoder;
 
-  public User loadUserByEmail(String username) {
+  public User loadUserByEmail(String email) {
     String sql = "SELECT * FROM customer "
         + "WHERE email = ? and enable";
 
-    return jdbcTemplate.queryForObject(sql, new Object[]{username}, getUserRowMapper());
+    return jdbcTemplate.queryForObject(sql, new Object[]{email}, getUserRowMapper());
   }
 
   private RowMapper<User> getUserRowMapper() {
@@ -40,11 +40,20 @@ public class UserRepository {
         "(email, password, first_name,last_name,role, enable ) VALUES (?, ?, ?, ?,?,?)";
 
     int update = jdbcTemplate
-        .update(sql, user.getEmail(), passwordEncoder.encode(user.getPassword()), user.getFirstName(), user.getLastName(), Role.USER.name(),
+        .update(sql, user.getEmail(), passwordEncoder.encode(user.getPassword()),
+            user.getFirstName(), user.getLastName(), Role.USER.name(),
             user.getEnable());
 
     if (update != 1) {
       throw new RuntimeException("failed to update customer table");
     }
+  }
+
+  public void enableUser(String email) {
+    String sql = "UPDATE customer " +
+        "set enable = true "
+        + "where customer.email = ?";
+
+    int update = jdbcTemplate.update(sql, email);
   }
 }

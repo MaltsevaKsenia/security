@@ -2,6 +2,7 @@ package com.example.security_demo.controller;
 
 import com.example.security_demo.model.User;
 import com.example.security_demo.service.EmailService;
+import com.example.security_demo.service.RegistrationCompleteService;
 import com.example.security_demo.service.UserServiceImpl;
 import java.security.Principal;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,8 @@ public class MainController {
   private final UserServiceImpl userService;
 
   private final EmailService emailService;
+
+  private final RegistrationCompleteService registrationCompleteService;
 
   @GetMapping("/")
   public String hello() {
@@ -49,13 +52,19 @@ public class MainController {
       @RequestParam("firstName") String firstName,
       @RequestParam("lastName") String lastName) {
     User user = User.builder()
-        .enable(true)
+        .enable(false)
         .email(email)
         .firstName(firstName)
         .lastName(lastName)
         .password(password).build();
-    emailService.sendEmailVerification("bla bla", email);
-//    userService.saveUser(user);
-    return "redirect:/login";
+    emailService.sendEmail(email);
+    userService.saveUser(user);
+    return "redirect:/home";
+  }
+
+  @GetMapping("/confirm")
+  public String confirmRegistration(@RequestParam("token") String token) {
+    registrationCompleteService.confirmEmailRegistration(token);
+    return "redirect:/home";
   }
 }
