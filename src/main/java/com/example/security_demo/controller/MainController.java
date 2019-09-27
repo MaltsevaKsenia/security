@@ -1,6 +1,7 @@
 package com.example.security_demo.controller;
 
 import com.example.security_demo.model.User;
+import com.example.security_demo.service.EmailService;
 import com.example.security_demo.service.UserServiceImpl;
 import java.security.Principal;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class MainController {
 
   private final UserServiceImpl userService;
+
+  private final EmailService emailService;
 
   @GetMapping("/")
   public String hello() {
@@ -51,7 +54,8 @@ public class MainController {
         .firstName(firstName)
         .lastName(lastName)
         .password(password).build();
-    userService.saveUser(user);
+    emailService.sendEmailVerification("bla bla", email);
+//    userService.saveUser(user);
     return "redirect:/login";
   }
 }
