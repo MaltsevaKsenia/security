@@ -1,5 +1,7 @@
 package com.example.security_demo.config;
 
+import com.example.security_demo.service.AuthenticationService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -11,7 +13,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+
+  private final AuthenticationService authenticationService;
 
   @Override
   protected void configure(HttpSecurity http) throws Exception {
@@ -25,7 +30,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         .permitAll()
         .and()
         .logout()
-        .permitAll();
+        .permitAll()
+        .and()
+        .authorizeRequests()
+        .antMatchers("/hello")
+        .hasAnyRole("ADMIN", "USER")
+    ;
   }
 
   @Bean
@@ -35,6 +45,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
   @Override
   protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-    super.configure(auth);
+    auth.userDetailsService(authenticationService).passwordEncoder(passwordEncoder());
   }
 }

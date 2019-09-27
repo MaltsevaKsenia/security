@@ -7,7 +7,6 @@ CREATE TABLE customer (
   first_name VARCHAR(50),
   last_name VARCHAR(50),
   role VARCHAR(50),
-  created_on DATETIME,
-  last_login DATETIME,
+  enable BOOLEAN,
   reset_token CHAR(36)
 );
