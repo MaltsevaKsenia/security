@@ -1,7 +1,7 @@
 DROP TABLE IF EXISTS customer;
 
 CREATE TABLE customer (
-  user_id INTEGER PRIMARY KEY AUTO_INCREMENT,
+  user_id IDENTITY NOT NULL PRIMARY KEY,
   email VARCHAR(255) UNIQUE,
   password CHAR(60),
   first_name VARCHAR(50),

@@ -20,5 +20,4 @@ public class SecurityDemoApplicationTests {
   public void contextLoads() {
     assertNotNull(applicationContext);
   }
-
 }

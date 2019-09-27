@@ -5,6 +5,7 @@ import com.example.security_demo.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -12,6 +13,8 @@ import org.springframework.stereotype.Repository;
 public class UserRepository {
 
   private final JdbcTemplate jdbcTemplate;
+
+  private final PasswordEncoder passwordEncoder;
 
   public User loadUserByEmail(String username) {
     String sql = "SELECT * FROM customer "
@@ -32,4 +35,16 @@ public class UserRepository {
         .build();
   }
 
+  public void saveUser(User user) {
+    String sql = "INSERT INTO CUSTOMER " +
+        "(email, password, first_name,last_name,role, enable ) VALUES (?, ?, ?, ?,?,?)";
+
+    int update = jdbcTemplate
+        .update(sql, user.getEmail(), passwordEncoder.encode(user.getPassword()), user.getFirstName(), user.getLastName(), Role.USER.name(),
+            user.getEnable());
+
+    if (update != 1) {
+      throw new RuntimeException("failed to update customer table");
+    }
+  }
 }

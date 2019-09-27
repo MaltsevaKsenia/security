@@ -18,11 +18,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
   private final AuthenticationService authenticationService;
 
+  private final PasswordEncoder passwordEncoder;
+
   @Override
   protected void configure(HttpSecurity http) throws Exception {
     http
         .authorizeRequests()
-        .antMatchers("/", "/home").permitAll()
+        .antMatchers("/", "/home", "/register").permitAll()
         .anyRequest().authenticated()
         .and()
         .formLogin()
@@ -38,13 +40,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     ;
   }
 
-  @Bean
-  public PasswordEncoder passwordEncoder() {
-    return new BCryptPasswordEncoder();
-  }
 
   @Override
   protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-    auth.userDetailsService(authenticationService).passwordEncoder(passwordEncoder());
+    auth.userDetailsService(authenticationService).passwordEncoder(passwordEncoder);
   }
 }
