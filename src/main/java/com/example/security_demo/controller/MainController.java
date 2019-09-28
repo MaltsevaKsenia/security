@@ -58,6 +58,8 @@ public class MainController {
         .firstName(firstName)
         .lastName(lastName)
         .password(password).build();
+    //todo check if user not already exist
+    //todo is token was expired resend it
     emailService.sendEmailForEmailConfirmation(email);
     userService.saveUser(user);
     return "redirect:/login";

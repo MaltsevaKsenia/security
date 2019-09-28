@@ -11,7 +11,6 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
@@ -29,26 +28,33 @@ public class EmailServiceImpl implements EmailService {
   private Long expiration;
 
   @Override
+  @Async
   public void sendEmailForEmailConfirmation(String email) {
     String token = jwtTokenUtil.generateToken(email);
-    UriComponentsBuilder urlBuilder = ServletUriComponentsBuilder.fromCurrentContextPath()
-        .path("/confirm");
-    String uri = urlBuilder.queryParam("token", token).toUriString();
+
+    String uri = UriComponentsBuilder
+        .fromUriString("http://localhost:8080/confirm")
+        .queryParam("token", token)
+        .build().toUriString();
+
     String text = "Follow link for confirm email " + uri;
     sendEmail(email, text);
   }
 
   @Override
+  @Async
   public void sendEmailForPasswordReset(String email) {
     String token = jwtTokenUtil.generateToken(email);
-    UriComponentsBuilder urlBuilder = ServletUriComponentsBuilder.fromCurrentContextPath()
-        .path("/change_password");
-    String uri = urlBuilder.queryParam("token", token).toUriString();
+
+    String uri = UriComponentsBuilder
+        .fromUriString("http://localhost:8080/change_password")
+        .queryParam("token", token)
+        .build().toUriString();
+
     String text = "Follow link for reset password " + uri;
     sendEmail(email, text);
   }
 
-  @Async
   @SneakyThrows
   private void sendEmail(String userEmailAddress, String text) {
     MimeMessage message = mailSender.createMimeMessage();
