@@ -4,6 +4,7 @@ import com.example.security_demo.exception.InternalValidationException;
 import com.example.security_demo.service.EmailService;
 import com.example.security_demo.service.UserService;
 import com.example.security_demo.util.JwtTokenUtil;
+import java.security.Principal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -24,10 +25,9 @@ public class PasswordResetController {
   private final UserService userService;
 
   @GetMapping("/change_password")
-  public String changePassword(@RequestParam("token") String token, RedirectAttributes modelMap,
+  public String changePassword(@RequestParam("token") String token,
       ModelMap modelMap1) {
     String email = jwtTokenUtil.verifyAndParseToken(token);
-    modelMap.addAttribute("email", email);
     modelMap1.addAttribute("email", email);
     return "password";
   }
@@ -47,7 +47,7 @@ public class PasswordResetController {
   @PostMapping("/password")
   public String password(@RequestParam("password") String password,
       @RequestParam("confirmPassword") String confirmPassword,
-      @ModelAttribute("email") String email) {
+      @RequestParam("email") String email) {
     if (password.equals(confirmPassword)) {
       userService.updatePassword(email, password);
     } else {
