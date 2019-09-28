@@ -5,19 +5,20 @@ import com.example.security_demo.service.EmailService;
 import com.example.security_demo.service.UserService;
 import com.example.security_demo.util.JwtTokenUtil;
 import java.security.Principal;
-import java.util.Map;
-import javax.jws.WebParam.Mode;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequiredArgsConstructor
+@Validated
 public class MainController {
 
   private final UserService userService;
@@ -44,12 +45,12 @@ public class MainController {
 
   @GetMapping("/register")
   public String register() {
-    return "registration";
+    return "register";
   }
 
   @PostMapping("/register")
-  public String register(@RequestParam("email") String email,
-      @RequestParam("password") String password,
+  public String register(@RequestParam("email") @NotNull @Email String email,
+      @RequestParam("password") @NotNull @Size(min = 6) String password,
       @RequestParam("firstName") String firstName,
       @RequestParam("lastName") String lastName) {
     User user = User.builder()

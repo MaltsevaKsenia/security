@@ -14,5 +14,7 @@
 <form th:action="@{/logout}" method="post">
   <button type="submit" value="Sign Out" class="btn btn-danger">Sign Out</button>
 </form>
+<p th:text="${message}"></p>
+<p th:text="${error}"></p>
 </body>
 </html>
