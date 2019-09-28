@@ -1,8 +1,8 @@
-package com.example.security_demo.service;
+package com.example.security_demo.service.impl;
 
 import com.example.security_demo.model.User;
 import com.example.security_demo.repository.UserRepository;
-import com.example.security_demo.util.JwtTokenUtil;
+import com.example.security_demo.service.UserService;
 import java.util.Collections;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -16,7 +16,6 @@ import org.springframework.stereotype.Component;
 public class UserServiceImpl implements UserService {
 
   private final UserRepository userRepository;
-
 
   @Override
   public void saveUser(User user) {

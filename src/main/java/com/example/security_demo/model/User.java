@@ -1,6 +1,5 @@
 package com.example.security_demo.model;
 
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -26,13 +25,5 @@ public class User {
 
   private Role role;
 
-  private String restToken;
-
   private Boolean enable;
-
-  public User(String email, String password, Role role) {
-    this.email = email;
-    this.password = password;
-    this.role = role;
-  }
 }

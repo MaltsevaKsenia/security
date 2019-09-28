@@ -1,10 +1,9 @@
 package com.example.security_demo.util;
 
-import com.example.security_demo.service.UserService;
+import com.example.security_demo.exception.TokenWasExpiredException;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import lombok.RequiredArgsConstructor;
@@ -15,18 +14,25 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class JwtTokenUtil {
 
-  public static final long TOKEN_EXPIRATION = 24 * 60 * 60;
-  private final UserService userService;
+  private static final long TOKEN_EXPIRATION = 24 * 60 * 60;
 
   @Value("${jwt.secret}")
   private String secret;
 
-  public String gwtCustomerEmail(String token) throws ExpiredJwtException {
+  public String gwtUserEmail(String token) throws ExpiredJwtException {
     return Jwts.parser()
         .setSigningKey(secret)
         .parseClaimsJws(token)
         .getBody()
         .getSubject();
+  }
+
+  public String verifyAndParseToken(String emailToken) {
+    String userEmail = gwtUserEmail(emailToken);
+    if (!isTokenExpired(emailToken)) {
+      return userEmail;
+    }
+    throw new TokenWasExpiredException("Token was expired");
   }
 
   public String generateToken(String email) {
@@ -35,13 +41,13 @@ public class JwtTokenUtil {
         .builder()
         .setClaims(new HashMap<>())
         .setSubject(email)
-        .setExpiration(new Date(System.currentTimeMillis() + TOKEN_EXPIRATION * 1000))
+        .setExpiration(new Date(System.currentTimeMillis() + TOKEN_EXPIRATION))
         .signWith(SignatureAlgorithm.HS512, secret)
         .compact();
   }
 
-  public Boolean isTokenNotExpired(String token) throws ExpiredJwtException {
-    return !Jwts
+  public Boolean isTokenExpired(String token) throws ExpiredJwtException {
+    return Jwts
         .parser()
         .setSigningKey(secret)
         .parseClaimsJws(token)

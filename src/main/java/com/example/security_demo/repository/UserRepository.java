@@ -12,15 +12,52 @@ import org.springframework.stereotype.Repository;
 @RequiredArgsConstructor
 public class UserRepository {
 
+  private static final String GET_ALL_USERS = "SELECT * FROM users WHERE email = ? and enable";
+
+  private static final String INSERT_USER = "INSERT INTO users (email, password, first_name,last_name,role, enable ) VALUES (?, ?, ?, ?,?,?)";
+
+  private static final String ENABLE_USER = "UPDATE users SET enable = true WHERE users.email = ?";
+
+  private static final String UPDATE_PASSWORD = "UPDATE users SET password = ? WHERE users.email = ?";
+
   private final JdbcTemplate jdbcTemplate;
 
   private final PasswordEncoder passwordEncoder;
 
   public User loadUserByEmail(String email) {
-    String sql = "SELECT * FROM customer "
-        + "WHERE email = ? and enable";
+    User user = jdbcTemplate.queryForObject(GET_ALL_USERS, new Object[]{email}, getUserRowMapper());
+    if (user == null) {
+      throw new RuntimeException("Failed to execute query");
+    }
+    return user;
+  }
 
-    return jdbcTemplate.queryForObject(sql, new Object[]{email}, getUserRowMapper());
+
+  public void saveUser(User user) {
+    int update = jdbcTemplate
+        .update(INSERT_USER, user.getEmail(),
+            passwordEncoder.encode(user.getPassword()),
+            user.getFirstName(),
+            user.getLastName(),
+            Role.USER.name(),
+            user.getEnable());
+    if (update != 1) {
+      throw new RuntimeException("Failed to update users table");
+    }
+  }
+
+  public void enableUser(String email) {
+    int update = jdbcTemplate.update(ENABLE_USER, email);
+    if (update != 1) {
+      throw new RuntimeException("Failed to enable users table");
+    }
+  }
+
+  public void updatePassword(String email, String newPassword) {
+    int update = jdbcTemplate.update(UPDATE_PASSWORD, passwordEncoder.encode(newPassword), email);
+    if (update != 1) {
+      throw new RuntimeException("Failed to update users table");
+    }
   }
 
   private RowMapper<User> getUserRowMapper() {
@@ -33,35 +70,5 @@ public class UserRepository {
         .enable(rs.getBoolean("enable"))
         .role(Role.valueOf(rs.getString("role")))
         .build();
-  }
-
-  public void saveUser(User user) {
-    String sql = "INSERT INTO CUSTOMER " +
-        "(email, password, first_name,last_name,role, enable ) VALUES (?, ?, ?, ?,?,?)";
-
-    int update = jdbcTemplate
-        .update(sql, user.getEmail(), passwordEncoder.encode(user.getPassword()),
-            user.getFirstName(), user.getLastName(), Role.USER.name(),
-            user.getEnable());
-
-    if (update != 1) {
-      throw new RuntimeException("failed to update customer table");
-    }
-  }
-
-  public void enableUser(String email) {
-    String sql = "UPDATE customer " +
-        "set enable = true "
-        + "where customer.email = ?";
-
-    int update = jdbcTemplate.update(sql, email);
-  }
-
-  public void updatePassword(String email, String newPassword) {
-    String sql = "UPDATE customer " +
-        "set password = ?"
-        + "where customer.email = ?";
-
-    int update = jdbcTemplate.update(sql, passwordEncoder.encode(newPassword), email);
   }
 }
